@@ -32,6 +32,7 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("Timing Strategy", tabName = "line_plot", icon = icon("image")),
+      menuItem("Estimated Return", tabName = "line_plot_return", icon = icon("image")),
       menuItem("Boxplots", tabName = "box_plot", icon = icon("image")),
       menuItem("Table", tabName = "stats_table", icon = icon("table")),
       menuItem("Data", tabName = "download", icon = icon("download")),
@@ -55,7 +56,23 @@ ui <- dashboardPage(
                 box(plotOutput("line"), width = '9', height = 650),
               )
       ),
- 
+
+      tabItem(tabName = "line_plot_return",
+              fluidRow(
+                box(
+                  title = "Plot Options",
+                  selectInput("selector_window", h4("Window Size"),
+                              choices = c(12, 60, 120, 180, 240, 360), 
+                              selected = 120, width = '100px'),
+                  selectInput("selector_method", h4("Estimation Method"),
+                              choices = c("RFF", "Linear", "Both"), 
+                              selected = "Both", width = '100px'),
+                  width = '3'
+                ),
+                box(plotOutput("line_return"), width = '9', height = 650),
+              )
+      ),
+      
       tabItem(tabName = "box_plot",
               fluidRow(
                 box(plotOutput("box"), width = '9', height = 650),
@@ -126,12 +143,25 @@ server <- function(input, output, session) {
       facet_grid(penalty_f ~ method) +
       scale_color_brewer("Ridge Penalty", palette = "Dark2") +
       labs(x = "Date",
-           y = "Timing Strategy") +
+           y = "Estimated Timing Strategy") +
       scale_x_date(date_breaks = "5 year", date_minor_breaks = "2.5 year") +
       guides(x =  guide_axis(angle = 45)) +
       theme_bw()
   }, height = 600)
 
+  output$line_return <- renderPlot({
+    p <- ggplot(data = df(),
+                aes(x = date, y = y_hat, col = penalty_f, group = penalty_f))
+    p + geom_line() + 
+      facet_grid(penalty_f ~ method) +
+      scale_color_brewer("Ridge Penalty", palette = "Dark2") +
+      labs(x = "Date",
+           y = "Estimated Return") +
+      scale_x_date(date_breaks = "5 year", date_minor_breaks = "2.5 year") +
+      guides(x =  guide_axis(angle = 45)) +
+      theme_bw()
+  }, height = 600)
+  
   output$box <- renderPlot({
     p <- ggplot(data = tb |> 
                   filter(date >= lubridate::ymd("1950-01-01")),
