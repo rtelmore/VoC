@@ -29,7 +29,8 @@ p + geom_boxplot() +
   labs(x = "Ridge Penalty",
        y = "Estimated Timing Strategy") +
   scale_y_continuous(limits = c(-0.001, 0.001)) +
-  theme_bw()
+  theme_bw() +
+  guides(fill = "none")
 
 ggsave("fig/boxplots-ts-12.png", height = 8.5, width = 8.5)
 
@@ -43,7 +44,8 @@ p + geom_boxplot() +
   labs(x = "Ridge Penalty",
        y = "Estimated Timing Strategy") +
   scale_y_continuous(limits = c(-0.001, 0.001)) +
-  theme_bw()
+  theme_bw() +
+  guides(fill = "none")
 
 ggsave("fig/boxplots-ts-120.png", height = 8.5, width = 8.5)
 
