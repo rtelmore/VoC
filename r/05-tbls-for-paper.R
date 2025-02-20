@@ -34,14 +34,14 @@ tmp <- tb |>
 tmp |> 
   filter(method == "Ridge/RFF") |> 
   select(-method) |> 
-  rename(Mean = m, `Std. Dev.` = s, `Sharpe Ratio` = sharpe, 
+  rename(Mean = m, `Std. Dev.` = s, `Sharpe` = sharpe, 
          Penalty = penalty_f, Window = window) |> 
   pivot_longer(3:5) |> 
   pivot_wider(names_from = Penalty) |> 
   xtable(caption = "The means, standard 
        deviations, and timing strategies under various penalty parameters in the 
        Ridge/RFF", 
-         digits = c(1, 1, 1, rep(5, 7)), 
+         digits = c(0, 0, 1, rep(5, 7)), 
          label = "tab:sharpe_rff") |> 
   print.xtable(include.rownames = F,
                booktabs = T,
