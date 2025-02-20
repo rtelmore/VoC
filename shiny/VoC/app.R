@@ -20,7 +20,9 @@ tb_1 <- readRDS("rff-data.rds") |>
 tb_2 <- readRDS("linear-data.rds") |> 
   dplyr::mutate(date = lubridate::ymd(date))
 
-tb <- rbind(tb_1, tb_2)
+tb <- rbind(tb_1, tb_2) |> 
+  mutate(method = ifelse(method == "RFF", "Ridge/RFF", "Ridge/GW"))
+
 
 tb$penalty_f = factor(tb$penalty, 
                       levels = c("None", "10e-3", "10e-2", "10e-1", "10",
@@ -118,20 +120,21 @@ server <- function(input, output, session) {
   output$table <- renderDataTable({
     datatable(tb |> 
                 filter(date >= lubridate::ymd("1950-01-01")) |> 
-                group_by(method, penalty, window) |> 
+                group_by(method, penalty_f, window) |> 
                 summarize(m = mean(ts, na.rm = T),
                           s = sd(ts, na.rm = T),
                           sharpe = sqrt(12)*m/s) |> 
-                ungroup() |> 
-                rbind(
-                  tb_2 |> 
-                    filter(date >= lubridate::ymd("1950-01-01")) |> 
-                    group_by(method, penalty, window) |> 
-                    summarize(m = mean(ts, na.rm = T),
-                              s = sd(ts, na.rm = T),
-                              sharpe = sqrt(12)*m/s) |> 
-                    ungroup()
-                ), 
+                ungroup(),
+              # |> 
+              #   rbind(
+              #     tb_2 |> 
+              #       filter(date >= lubridate::ymd("1950-01-01")) |> 
+              #       group_by(method, penalty, window) |> 
+              #       summarize(m = mean(ts, na.rm = T),
+              #                 s = sd(ts, na.rm = T),
+              #                 sharpe = sqrt(12)*m/s) |> 
+              #       ungroup()
+              #   ), 
               rownames = F) |> 
       formatRound(c(4:6), c(5, 5, 5))
   })

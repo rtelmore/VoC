@@ -13,7 +13,8 @@ tb_1 <- readRDS("data/rff-data.rds") |>
 tb_2 <- readRDS("data/linear-data.rds") |> 
   dplyr::mutate(date = lubridate::ymd(date))
 
-tb <- rbind(tb_1, tb_2)
+tb <- rbind(tb_1, tb_2) |> 
+  mutate(method = ifelse(method == "RFF", "Ridge/RFF", "Ridge/GW"))
 
 tb$penalty_f = factor(tb$penalty, 
                       levels = c("None", "10e-3", "10e-2", "10e-1", "10",
