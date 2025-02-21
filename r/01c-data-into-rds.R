@@ -9,14 +9,11 @@ library(stringr)
 
 path_str <- "~/py_research/ridgeless-finance/data/"
 files <- dir(path = path_str)
-files_of_interest <- files[grep("^matlab-sims-rff.*demean\\-0\\.csv", files)]
-
-tmp <- read.csv(paste0(path_str, files_of_interest[1])) |> 
-  rename(return = Y)
-
-return_df <- tmp |> 
-  select(date, return)
-saveRDS(return_df, "data/returns.rds")
+files_of_interest <- files[grep("^matlab\\-sims\\-rff.*\\.csv", files)]
+files_of_interest <- files_of_interest[c(3, 12, 5, 8, 10)]
+#^linear.*1\\-demean\\-0\\.csv
+# tmp <- read.csv(paste0(path_str, files_of_interest[1])) |> 
+#   rename(return = Y)
 
 for(file in files_of_interest){
   window_num <- as.numeric(str_extract(file, "\\d+"))
@@ -56,10 +53,18 @@ for(file in files_of_interest){
   } else results <- rff_df
 }
 
+saveRDS(results, "data/rff-std-1-demean-0-data.rds")
+
+return_df <- tmp |> 
+  select(date, return)
+saveRDS(return_df, "data/returns.rds")
+
+return_df <- readRDS("data/returns.rds")
+
 path_str <- "~/py_research/ridgeless-finance/data/"
 files <- dir(path = path_str)
-files_of_interest <- files[grep("^linear.*0\\-demean\\-0\\.csv", files)]
-
+files_of_interest <- files[grep("^linear.*1\\-demean\\-0\\.csv", files)]
+#file <- files_of_interest[1]
 for(file in files_of_interest){
   tmp <- read.csv(paste0(path_str, file)) 
   window_num <- as.numeric(str_extract(file, "\\d+"))
@@ -98,6 +103,8 @@ for(file in files_of_interest){
     results_linear <- rbind(results_linear, linear_df)
   } else results_linear <- linear_df
 }
+
+saveRDS(results_linear, "data/linear-std-1-demean-0-data.rds")
 
 # return_df <- tmp |> 
 #   select(date, return)
