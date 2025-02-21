@@ -63,6 +63,8 @@ tmp |>
                booktabs = T,
                hline.after = c(0, 3, 6, 9, 12, 15, 18))
 
+### Tables one and two
+
 tb_1 <- readRDS("data/rff-std-1-demean-0-data.rds") |> 
   dplyr::mutate(date = lubridate::ymd(date))
 

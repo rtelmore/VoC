@@ -9,7 +9,7 @@ library(ggplot2)
 
 ## GW Benchmark
 # df <- readMat("data/gybench-trnwin-12-stdize-1-demean-0.mat")
-df <- readMat("~/py_research/ridgeless-finance/Code/rdac_sims/maxP-12000-trnwin-12-gamma-2-stdize-1-demean-0-v2/iSim1.mat")
+df <- readMat("~/py_research/ridgeless-finance/Code/rdac_sims/maxP-12000-trnwin-180-gamma-2-stdize-1-demean-0-v2/iSim1.mat")
 
 dat <- data.frame(date = lubridate::ym(df$dates), 
                   z_minus_3 = NA,
@@ -23,14 +23,15 @@ dat <- data.frame(date = lubridate::ym(df$dates),
 #pred = apply(results, 1, mean),
 
 ## Read sim data
-dir_path <- "~/py_research/ridgeless-finance/Code/rdac_sims/maxP-12000-trnwin-12-gamma-2-stdize-1-demean-0-v2/"
+dir_path <- "~/py_research/ridgeless-finance/Code/rdac_sims/maxP-12000-trnwin-180-gamma-2-stdize-1-demean-0-v2/"
 files <- dir(path = dir_path)
 
 
-results <- matrix(NA, nc = 1000, nr = 1092)
+results <- matrix(NA, nc = 500, nr = 1092)
 ## Note that the 165th entry is the prediction with 12000 RFFs for 12
 ## Note that the 91st entry is the prediction with 12000 RFFs for 60
 ## Note that the 82nd entry is the prediction with 12000 RFFs for 120
+## Note that the 79th entry is the prediction with 12000 RFFs for 180
 ## Note that the 77th entry is the prediction with 12000 RFFs for 240
 ## Note that the 76th entry is the prediction with 12000 RFFs for 360
 
@@ -43,14 +44,14 @@ for(j in 1:7){
     try({
       str_file <- paste0(dir_path, files[i])
       tmp <- readMat(str_file)
-      results[, i] <- tmp$Yprd[, 165, j]
+      results[, i] <- tmp$Yprd[, 79, j]
     }
     )
   }
   dat[, j+1] <- apply(results, 1, mean)
 }
 
-write.csv(dat, "data/matlab-sims-rff-60-std-0-demean-0.csv")
+write.csv(dat, "~/py_research/ridgeless-finance/data/matlab-sims-rff-180.csv")
 
 
 df <- readMat("Code/rdac_sims/maxP-12000-trnwin-12-gamma-2-stdize-0-demean-0-v2/iSim1.mat")

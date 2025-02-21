@@ -10,7 +10,7 @@ library(stringr)
 path_str <- "~/py_research/ridgeless-finance/data/"
 files <- dir(path = path_str)
 files_of_interest <- files[grep("^matlab\\-sims\\-rff.*\\.csv", files)]
-files_of_interest <- files_of_interest[c(3, 12, 5, 8, 10)]
+files_of_interest <- files_of_interest[c(3, 13, 5, 7, 9, 11)]
 #^linear.*1\\-demean\\-0\\.csv
 # tmp <- read.csv(paste0(path_str, files_of_interest[1])) |> 
 #   rename(return = Y)
