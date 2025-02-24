@@ -32,7 +32,8 @@ tmp <- tb |>
 ## Table Three
 
 tmp |> 
-  filter(method == "Ridge/RFF") |> 
+  filter(method == "Ridge/RFF",
+         !(penalty_f %in% c("10e+2", "10e-2"))) |> 
   select(-method) |> 
   rename(Mean = m, `Std. Dev.` = s, `Sharpe` = sharpe, 
          Penalty = penalty_f, Window = window) |> 
@@ -41,14 +42,15 @@ tmp |>
   xtable(caption = "The means, standard 
        deviations, and timing strategies under various penalty parameters in the 
        Ridge/RFF", 
-         digits = c(0, 0, 1, rep(5, 7)), 
+         digits = c(0, 0, 1, rep(6, 5)), 
          label = "tab:sharpe_rff") |> 
   print.xtable(include.rownames = F,
                booktabs = T,
                hline.after = c(0, 3, 6, 9, 12, 15, 18))
 
 tmp |> 
-  filter(method == "Ridge/GW") |> 
+  filter(method == "Ridge/GW",
+         !(penalty_f %in% c("10e+2", "10e-2"))) |> 
   select(-method) |> 
   rename(Mean = m, `Std. Dev.` = s, `Sharpe` = sharpe, 
          Penalty = penalty_f, Window = window) |> 
@@ -57,7 +59,7 @@ tmp |>
   xtable(caption = "The means, standard 
        deviations, and timing strategies under various penalty parameters in the 
        Ridge/GW", 
-         digits = c(0, 0, 1, rep(4, 8)),
+         digits = c(0, 0, 1, rep(6, 6)),
          label = "tab:sharpe_gw") |> 
   print.xtable(include.rownames = F,
                booktabs = T,
@@ -89,7 +91,8 @@ tmp <- tb |>
 ## Table One/Two
 
 tmp |> 
-  filter(method == "Ridge/RFF") |> 
+  filter(method == "Ridge/RFF",
+         !(penalty_f %in% c("10e+2", "10e-2"))) |>  
   select(-method) |> 
   rename(Mean = m, `Std. Dev.` = s, `Sharpe` = sharpe, 
          Penalty = penalty_f, Window = window) |> 
@@ -98,14 +101,15 @@ tmp |>
   xtable(caption = "The means, standard 
        deviations, and timing strategies under various penalty parameters in the 
        Ridge/RFF", 
-         digits = c(0, 0, 1, rep(5, 7)), 
+         digits = c(0, 0, 1, rep(6, 5)), 
          label = "tab:sharpe_rff_kelly") |> 
   print.xtable(include.rownames = F,
                booktabs = T,
                hline.after = c(0, 3, 6, 9, 12, 15))
 
 tmp |> 
-  filter(method == "Ridge/GW") |> 
+  filter(method == "Ridge/GW",
+         !(penalty_f %in% c("10e+2", "10e-2"))) |> 
   select(-method) |> 
   rename(Mean = m, `Std. Dev.` = s, `Sharpe` = sharpe, 
          Penalty = penalty_f, Window = window) |> 
@@ -114,7 +118,7 @@ tmp |>
   xtable(caption = "The means, standard 
        deviations, and timing strategies under various penalty parameters in the 
        Ridge/GW", 
-         digits = c(0, 0, 1, rep(4, 8)),
+         digits = c(0, 0, 1, rep(6, 6)),
          label = "tab:sharpe_gw_kelly") |> 
   print.xtable(include.rownames = F,
                booktabs = T,
