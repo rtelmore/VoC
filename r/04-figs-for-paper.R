@@ -58,15 +58,15 @@ tmp <- tb |>
   bind_rows(aaa_baa) |> 
   filter(date >= ymd("1950-01-01")) |> 
   mutate(bond = ifelse(penalty_f %in% c("AAA", "BAA"),
-                       "Bond", "Ridge"))
+                       "Interest Rate", "Regressions"))
 
 p <- ggplot(data = tmp,
             aes(x = penalty_f, fill = penalty_f, y = ts))
 p + geom_boxplot() + 
   facet_grid(method ~ .) +
   scale_fill_brewer("Ridge Penalty", palette = "Dark2") +
-  labs(x = "Ridge Penalty and Bond Type",
-       y = "Estimated Timing Strategy and Bond Returns") +
+  labs(x = "Ridge Penalty and Security",
+       y = "Estimated Timing Strategy and Interest Rate") +
   scale_y_continuous(limits = c(-0.01, 0.01)) +
   theme_bw() +
   geom_vline(xintercept = 4.5, linetype = "dashed") +
