@@ -9,13 +9,13 @@ tic
 gamma = 2;
 
 % training window list
-trnwin_list = [12, 60, 120];
+trnwin_list = [12, 60, 120, 180, 240, 360];
 
 % number of simulations
 nSim = 1000;
 
 % Standardization = True
-stdize = 0;
+stdize = 1;
 
 %**************************************************************************
 % Predictions for 1000 simulations with random seeds from 1 to 1000

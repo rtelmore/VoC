@@ -33,7 +33,7 @@ clc
 run EmpiricalAnalysis/Step1_Predictions/GW_benchmark_main.m
 
 %%% Run 1000 simulations
-%run EmpiricalAnalysis/Step1_Predictions/predictions_main.m
+run EmpiricalAnalysis/Step1_Predictions/predictions_main.m
 
 %%% Generate exhibits: Figure 7, Figure 8, Figure 9, Table I
 % Figure F1, Figure F2, Figure F3, Figure F9, Figure F10, Figure F11

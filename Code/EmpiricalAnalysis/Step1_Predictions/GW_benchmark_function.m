@@ -50,6 +50,7 @@ if stdize==1
         Y       = Y./sqrt(Y2);
         clear Y2
     end
+    
     % Drop first 3 years due to vol scaling of X
     Y       = Y(37:end);
     X       = X(37:end,:);
