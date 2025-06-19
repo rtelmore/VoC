@@ -9,7 +9,9 @@ function [] = GW_benchmark_function(trnwin)
 %**************************************************************************
 
 % Standardization = True
+% We want to standardize X but keep Y in original units
 stdize  = 1;
+stdizey = 0;
 
 % save the results
 saveon  = 1;
@@ -39,14 +41,15 @@ if stdize==1
     X       = volstdbwd(X,[]);  % original volstdbwd0
     
     % Standardize Y
-    Y2      = 0;
-    for j=1:12
-        Y2  = Y2+lagmatrix(Y.^2,[j]);
+    if stdizey==1
+        Y2      = 0;
+        for j=1:12
+            Y2  = Y2+lagmatrix(Y.^2,[j]);
+        end
+        Y2      = Y2/12;
+        Y       = Y./sqrt(Y2);
+        clear Y2
     end
-    Y2      = Y2/12;
-    Y       = Y./sqrt(Y2);
-    clear Y2
-
     % Drop first 3 years due to vol scaling of X
     Y       = Y(37:end);
     X       = X(37:end,:);
@@ -134,7 +137,7 @@ timing_gy   = timing;
 Yprd_gy     = Yprd;
 if saveon==1
     save_path = strcat('./tryrff_v2_SeparateSims/');
-    save([save_path '/gybench-trnwin-' num2str(trnwin) '-stdize-' num2str(stdize)  '-demean-' num2str(demean) '.mat'],'timing_gy','Yprd_gy');
+    save([save_path '/gybench-trnwin-' num2str(trnwin) '-stdize-' num2str(stdize) '-stdizey-' num2str(stdizey) '-demean-' num2str(demean) '.mat'],'timing_gy','Yprd_gy');
 end
 
 end
