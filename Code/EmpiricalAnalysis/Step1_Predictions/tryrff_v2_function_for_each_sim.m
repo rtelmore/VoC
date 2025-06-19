@@ -34,6 +34,9 @@ saveon  = 1;
 % Demeaning = False
 demean  = 1;
 
+% Standardize Y = false
+stdizey = 0;
+
 % length of shrinkage parameters
 nL      = length(lamlist);
 
@@ -41,7 +44,7 @@ nL      = length(lamlist);
 nP      = length(Plist);
 
 % saving string
-para_str = strcat('maxP-', num2str(maxP), '-trnwin-', num2str(trnwin), '-gamma-', num2str(gamma), '-stdize-', num2str(stdize), '-demean-', num2str(demean), '-v2');
+para_str = strcat('maxP-', num2str(maxP), '-trnwin-', num2str(trnwin), '-gamma-', num2str(gamma), '-stdize-', num2str(stdize), '-stdizey-', num2str(stdizey), '-demean-', num2str(demean), '-v2');
 
 %**************************************************************************
 % Save path
@@ -67,14 +70,16 @@ if stdize==1
     % Standardize X using expanding window
     X       = volstdbwd(X,[]);
     
-    % Standardize Y (returns) by volatility of previous 12 months
-    Y2      = 0;
-    for j=1:12
-        Y2  = Y2+lagmatrix(Y.^2,[j]);
+    % Standardize Y
+    if stdizey==1
+        Y2      = 0;
+        for j=1:12
+            Y2  = Y2+lagmatrix(Y.^2,[j]);
+        end
+        Y2      = Y2/12;
+        Y       = Y./sqrt(Y2);
+        clear Y2
     end
-    Y2      = Y2/12; % Y2 is the moving average of previous 12 months
-    Y       = Y./sqrt(Y2);
-    clear Y2
 
     % Drop first 3 years due to vol scaling of X
     Y       = Y(37:end);
