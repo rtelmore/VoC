@@ -7,10 +7,10 @@ library(dplyr)
 library(tidyr)
 library(lubridate)
 
-tb_1 <- readRDS("data/rff-data.rds") |> 
+tb_1 <- readRDS("data/rff-std-1-stdy-0-demean-1-data.rds") |> 
   dplyr::mutate(date = lubridate::ymd(date))
 
-tb_2 <- readRDS("data/linear-data.rds") |> 
+tb_2 <- readRDS("data/linear-std-1-stdy-0-demean-1-data.rds") |> 
   dplyr::mutate(date = lubridate::ymd(date))
 
 tb <- rbind(tb_1, tb_2) |> 
@@ -33,19 +33,19 @@ p + geom_boxplot() +
   theme_bw() +
   guides(fill = "none")
 
-ggsave("fig/boxplots-ts-12.png", height = 8.5, width = 8.5)
+ggsave("fig/boxplots-ts-12-revision.png", height = 8.5, width = 8.5)
 
 aaa_baa <- read.csv("data/aaa-baa.csv") |> 
   select(-Y) |> 
   rename(AAA = exAAARF, BAA = exBAARF) |> 
   pivot_longer(-1, names_to = "penalty_f", values_to = "ts") |> 
-  mutate(date = ymd(date),
+  mutate(date = mdy(date),
          method = "Ridge/GW") |> 
   rbind(read.csv("data/aaa-baa.csv") |> 
           select(-Y) |> 
           rename(AAA = exAAARF, BAA = exBAARF) |> 
           pivot_longer(-1, names_to = "penalty_f", values_to = "ts") |> 
-          mutate(date = ymd(date),
+          mutate(date = mdy(date),
                  method = "Ridge/RFF"))
 
 aaa_baa$penalty_f = factor(aaa_baa$penalty_f, 
@@ -72,7 +72,7 @@ p + geom_boxplot() +
   geom_vline(xintercept = 4.5, linetype = "dashed") +
   guides(fill = "none")
 
-ggsave("fig/boxplots-ts-120-appendix.png", height = 8.5, width = 8.5)
+ggsave("fig/boxplots-ts-120-appendix-revision.png", height = 8.5, width = 8.5)
 
 p <- ggplot(data = tb |>
               filter(penalty %in% c("10e-3", "10e-1", "10e+1", "10e+3"),
@@ -90,7 +90,7 @@ p + geom_line() +
   theme_bw() +
   guides(col = "none")
 
-ggsave("fig/ts-lineplot-120.png", height = 6.5, width = 8)
+ggsave("fig/ts-lineplot-120-revision.png", height = 6.5, width = 8)
 
 p <- ggplot(data = tb |> 
               filter(penalty %in% c("10e-3", "10e-1", "10e+1", "10e+3"),
@@ -107,4 +107,4 @@ p + geom_line() +
   guides(x =  guide_axis(angle = 45)) +
   theme_bw() +
   guides(col = "none")
-ggsave("fig/return-lineplot-120.png", height = 6.5, width = 8)
+ggsave("fig/return-lineplot-120-revision.png", height = 6.5, width = 8)

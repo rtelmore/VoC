@@ -66,7 +66,6 @@ return_df <- tmp |>
 saveRDS(return_df, "data/returns.rds")
 
 #return_df <- readRDS("data/returns.rds")
-rm(results)
 files <- dir(path = "data/")
 files_of_interest <- files[grep("^gybench", files)]
 #file <- files_of_interest[1]
