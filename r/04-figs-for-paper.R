@@ -22,7 +22,7 @@ tb$penalty_f = factor(tb$penalty,
 
 p <- ggplot(data = tb |> 
               filter(date >= lubridate::ymd("1950-01-01"),
-                     window == 12),
+                     window == 120),
             aes(x = penalty_f, fill = penalty_f, y = ts))
 p + geom_boxplot() + 
   facet_grid(method ~ .) +
@@ -33,7 +33,7 @@ p + geom_boxplot() +
   theme_bw() +
   guides(fill = "none")
 
-ggsave("fig/boxplots-ts-12-revision.png", height = 8.5, width = 8.5)
+ggsave("fig/boxplots-ts-120-revision.png", height = 8.5, width = 8.5)
 
 aaa_baa <- read.csv("data/aaa-baa.csv") |> 
   select(-Y) |> 
