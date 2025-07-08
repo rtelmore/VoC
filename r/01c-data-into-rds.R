@@ -1,24 +1,30 @@
 ## Ryan Elmore
 ## 27 Jan 2025
 ## Process data into rds files
+##  revised: 08 July 2025
+
 
 library(dplyr)
 library(tidyr)
 library(lubridate)
 library(stringr)
 
-path_str <- "~/py_research/ridgeless-finance/data/"
-files <- dir(path = path_str)
-files_of_interest <- files[grep("^matlab\\-sims\\-rff.*\\.csv", files)]
-files_of_interest <- files_of_interest[c(3, 13, 5, 7, 9, 11)]
+# path_str <- "~/py_research/ridgeless-finance/data/"
+# files <- dir(path = path_str)
+# files_of_interest <- files[grep("^matlab\\-sims\\-rff.*\\.csv", files)]
+# files_of_interest <- files_of_interest[c(3, 13, 5, 7, 9, 11)]
 #^linear.*1\\-demean\\-0\\.csv
 # tmp <- read.csv(paste0(path_str, files_of_interest[1])) |> 
 #   rename(return = Y)
+rm(results)
+files <- dir(path = "data/")
+files_of_interest <- files[grep("^matlab", files)]
+#file <- files_of_interest[6]
 
 for(file in files_of_interest){
   window_num <- as.numeric(str_extract(file, "\\d+"))
   print(window_num)
-  tmp <- read.csv(paste0(path_str, file)) |>
+  tmp <- read.csv(paste0("data/", file)) |>
     select(-X) |>
     rename(return = Y)
   
@@ -53,20 +59,19 @@ for(file in files_of_interest){
   } else results <- rff_df
 }
 
-saveRDS(results, "data/rff-std-1-demean-0-data.rds")
+saveRDS(results, "data/rff-std-1-stdy-0-demean-1-data.rds")
 
 return_df <- tmp |> 
   select(date, return)
 saveRDS(return_df, "data/returns.rds")
 
-return_df <- readRDS("data/returns.rds")
-
-path_str <- "~/py_research/ridgeless-finance/data/"
-files <- dir(path = path_str)
-files_of_interest <- files[grep("^linear.*1\\-demean\\-0\\.csv", files)]
+#return_df <- readRDS("data/returns.rds")
+rm(results)
+files <- dir(path = "data/")
+files_of_interest <- files[grep("^gybench", files)]
 #file <- files_of_interest[1]
 for(file in files_of_interest){
-  tmp <- read.csv(paste0(path_str, file)) 
+  tmp <- read.csv(paste0("data/", file)) 
   window_num <- as.numeric(str_extract(file, "\\d+"))
   print(window_num)  
   linear_df <- tmp |> 
@@ -104,19 +109,9 @@ for(file in files_of_interest){
   } else results_linear <- linear_df
 }
 
-saveRDS(results_linear, "data/linear-std-1-demean-0-data.rds")
+saveRDS(results_linear, "data/linear-std-1-stdy-0-demean-1-data.rds")
 
-# return_df <- tmp |> 
-#   select(date, return)
-# saveRDS(return_df, "data/returns.rds")
-
-#rename_with(~gsub("z_", "", .x)) |> 
-  
-saveRDS(results, "data/rff-data.rds")
-
-# rf <- read.csv("data/risk-free-rates.csv") |> 
-#   mutate(date = ym(date))
-
+results <- readRDS("data/rff-std-1-stdy-0-demean-1-data.rds")
 sharpes <- results |> 
   filter(date >= lubridate::ymd("1950-01-01")) |> 
   group_by(method, penalty, window) |> 
@@ -136,8 +131,8 @@ sharpes <- results |>
 
 saveRDS(sharpes, "data/all-sharpes.rds")
 
-write.csv(sharpes, "data/all-sharpes.csv", row.names = F)
-
-saveRDS(results_linear, "data/linear-data.rds")
-
-fd <- readRDS("data/rff-data.rds")
+# write.csv(sharpes, "data/all-sharpes.csv", row.names = F)
+# 
+# saveRDS(results_linear, "data/linear-data.rds")
+# 
+# fd <- readRDS("data/rff-data.rds")
