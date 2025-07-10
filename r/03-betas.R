@@ -1,6 +1,7 @@
 ## Ryan Elmore
 ## Extract Beta
 ## 20 Dec 2024
+##  revised: 08 July 2025
 
 library(R.matlab)
 library(lubridate)
@@ -9,12 +10,12 @@ library(ggplot2)
 
 ## Read sim data
 ## Path to your data
-dir_path <- "~/py_research/ridgeless-finance/Code/rdac_sims/maxP-12000-trnwin-12-gamma-2-stdize-1-demean-0-v2/"
-files <- dir(path = dir_path)
-
-# str_file <- paste0(dir_path, files[10])
-# tmp <- readMat(str_file)
-df <- readMat("~/py_research/ridgeless-finance/Code/rdac_sims/maxP-12000-trnwin-12-gamma-2-stdize-1-demean-0-v2/iSim1.mat")
+N_train <- 60
+root_dir <- "Code/EmpiricalAnalysis/Step1_Predictions/tryrff_v2_SeparateSims/"
+df <- readMat(paste0(root_dir, 
+                     "maxP-12000-trnwin-",
+                     N_train,
+                     "-gamma-2-stdize-1-stdizey-0-demean-1-v2/iSim1.mat"))
 
 dat <- data.frame(date = lubridate::ym(df$dates), 
                   z_minus_3 = NA,
@@ -26,8 +27,14 @@ dat <- data.frame(date = lubridate::ym(df$dates),
                   z_3 = NA,
                   Y = as.vector(df$Y))
 
+dir_path <- paste0(root_dir,
+                   "maxP-12000-trnwin-",
+                   N_train,
+                   "-gamma-2-stdize-1-stdizey-0-demean-1-v2/")
+files <- dir(path = dir_path)
+N_files <- length(files)
 
-results <- matrix(NA, nc = 1000, nr = 1092)
+results <- matrix(NA, nc = N_files, nr = 1092)
 ## Note that the 165th entry is the prediction with 12000 RFFs for 12
 ## Note that the 91st entry is the prediction with 12000 RFFs for 60
 ## Note that the 82nd entry is the prediction with 12000 RFFs for 120
@@ -45,14 +52,15 @@ for(j in 1:7){
     try({
       str_file <- paste0(dir_path, files[i])
       tmp <- readMat(str_file)
-      results[, i] <- tmp$Bnrm[, 165, j]
+      results[, i] <- tmp$Bnrm[, 91, j]
     }
     )
   }
   dat[, j+1] <- apply(results, 1, mean)
 }
 
-saveRDS(dat, "data/betas.rds")
+saveRDS(dat, paste0("data/avg-beta-norm-", N_train, ".rds"))
+
 df <- dat[, c(1, 2:8)] |> 
   tidyr::pivot_longer(!date, names_to = "shrinkage", values_to = "beta_norm")
 
@@ -64,4 +72,4 @@ p + geom_line() +
   labs(x = "Date", y = "Average L2 Norm") +
   theme_bw()
 
-ggsave("fig/beta_norm.pdf", hei = 11, wid = 8.5)
+ggsave("fig/beta-norm-revision.pdf", hei = 11, wid = 8.5)

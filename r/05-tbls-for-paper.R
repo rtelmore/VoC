@@ -1,6 +1,7 @@
 ## Ryan Elmore
 ## 19 Feb 2025
 ## Tables for paper
+##  revised: 08 July 2025
 
 library(ggplot2)
 library(dplyr)
@@ -18,8 +19,8 @@ tb <- rbind(tb_1, tb_2) |>
   mutate(method = ifelse(method == "RFF", "Ridge/RFF", "Ridge/GW"))
 
 tb$penalty_f = factor(tb$penalty,
-                      levels = c("None", "10e-3", "10e-2", "10e-1", "10",
-                                 "10e+1", "10e+2", "10e+3"))
+                      levels = c("None", "10^-3", "10^-2", "10^-1", "1",
+                                 "10^+1", "10^+2", "10^+3"))
 
 tmp <- tb |>  
   filter(date >= lubridate::ymd("1950-01-01")) |> 
