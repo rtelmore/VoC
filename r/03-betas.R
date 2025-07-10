@@ -18,13 +18,13 @@ df <- readMat(paste0(root_dir,
                      "-gamma-2-stdize-1-stdizey-0-demean-1-v2/iSim1.mat"))
 
 dat <- data.frame(date = lubridate::ym(df$dates), 
-                  z_minus_3 = NA,
-                  z_minus_2 = NA,
-                  z_minus_1 = NA,
-                  z_0 = NA,
-                  z_1 = NA,
-                  z_2 = NA,
-                  z_3 = NA,
+                  0.001 = NA,
+                  0.01 = NA,
+                  0.1 = NA,
+                  1 = NA,
+                  10 = NA,
+                  100 = NA,
+                  1000 = NA,
                   Y = as.vector(df$Y))
 
 dir_path <- paste0(root_dir,
@@ -64,7 +64,9 @@ saveRDS(dat, paste0("data/avg-beta-norm-", N_train, ".rds"))
 df <- dat[, c(1, 2:8)] |> 
   tidyr::pivot_longer(!date, names_to = "shrinkage", values_to = "beta_norm")
 
-p <- ggplot(data = df, aes(x = date, y = beta_norm, col = shrinkage))
+p <- ggplot(data = df |> 
+              filter(date >= ymd("1950-01-01")), 
+            aes(x = date, y = beta_norm, col = shrinkage))
 
 p + geom_line() +
   facet_grid(shrinkage ~ .) +
