@@ -10,7 +10,7 @@ library(ggplot2)
 
 ## Read sim data
 ## Path to your data
-N_train <- 60
+N_train <- 120
 root_dir <- "Code/EmpiricalAnalysis/Step1_Predictions/tryrff_v2_SeparateSims/"
 df <- readMat(paste0(root_dir, 
                      "maxP-12000-trnwin-",
@@ -18,13 +18,13 @@ df <- readMat(paste0(root_dir,
                      "-gamma-2-stdize-1-stdizey-0-demean-1-v2/iSim1.mat"))
 
 dat <- data.frame(date = lubridate::ym(df$dates), 
-                  0.001 = NA,
-                  0.01 = NA,
-                  0.1 = NA,
-                  1 = NA,
-                  10 = NA,
-                  100 = NA,
-                  1000 = NA,
+                  "0.001" = NA,
+                  "0.01" = NA,
+                  "0.1" = NA,
+                  "1" = NA,
+                  "10" = NA,
+                  "100" = NA,
+                  "1000" = NA,
                   Y = as.vector(df$Y))
 
 dir_path <- paste0(root_dir,
@@ -52,26 +52,30 @@ for(j in 1:7){
     try({
       str_file <- paste0(dir_path, files[i])
       tmp <- readMat(str_file)
-      results[, i] <- tmp$Bnrm[, 91, j]
+      results[, i] <- tmp$Bnrm[, 82, j]
     }
     )
   }
   dat[, j+1] <- apply(results, 1, mean)
 }
 
+# dat <- readRDS("data/avg-beta-norm-12.rds")
+colnames(dat)[2:8] <- c(0.001, 0.01, 0.1, 1, 10, 100, 1000)
 saveRDS(dat, paste0("data/avg-beta-norm-", N_train, ".rds"))
 
 df <- dat[, c(1, 2:8)] |> 
-  tidyr::pivot_longer(!date, names_to = "shrinkage", values_to = "beta_norm")
+  tidyr::pivot_longer(!date, names_to = "penalty", values_to = "beta_norm")
 
 p <- ggplot(data = df |> 
               filter(date >= ymd("1950-01-01")), 
-            aes(x = date, y = beta_norm, col = shrinkage))
+            aes(x = date, y = beta_norm, col = penalty))
 
 p + geom_line() +
-  facet_grid(shrinkage ~ .) +
-  scale_color_brewer(palette = "Set1") +
+  facet_grid(penalty ~ .) +
+  scale_color_brewer(palette = "Dark2") +
   labs(x = "Date", y = "Average L2 Norm") +
+  scale_x_date(date_breaks = "5 year") +
+  guides(x =  guide_axis(angle = 45)) +
   theme_bw()
 
-ggsave("fig/beta-norm-revision.pdf", hei = 11, wid = 8.5)
+ggsave(paste0("fig/beta-norm-", N_train, "-revision.pdf"), hei = 11, wid = 10)
