@@ -17,7 +17,7 @@ tb_2 <- readRDS("data/linear-std-1-stdy-0-demean-1-data.rds") |>
 
 tb <- rbind(tb_1, tb_2) |> 
   mutate(method = ifelse(method == "RFF", "Ridge/RFF", "Ridge/GW"))
-
+  
 tb$penalty_f = factor(tb$penalty,
                       levels = c("None", "10^-3", "10^-2", "10^-1", "1",
                                  "10^+1", "10^+2", "10^+3"))

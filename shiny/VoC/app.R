@@ -23,10 +23,21 @@ tb_2 <- readRDS("linear-data.rds") |>
 tb <- rbind(tb_1, tb_2) |> 
   mutate(method = ifelse(method == "RFF", "Ridge/RFF", "Ridge/GW"))
 
+tb_download <- tb |> 
+  mutate(penalty = gsub("10e-3", "0.001", penalty)) |> 
+  mutate(penalty = gsub("10e-2", "0.01", penalty)) |> 
+  mutate(penalty = gsub("10e-1", "0.1", penalty)) |> 
+  mutate(penalty = gsub("10", "1", penalty)) |> 
+  mutate(penalty = gsub("10e+1", "10", penalty)) |> 
+  mutate(penalty = gsub("10e+2", "100", penalty)) |> 
+  mutate(penalty = gsub("10e+3", "1000", penalty)) 
 
 tb$penalty_f = factor(tb$penalty, 
                       levels = c("None", "10e-3", "10e-2", "10e-1", "10",
                                  "10e+1", "10e+2", "10e+3"))
+   
+pens <- c("None", "0.001", "0.01", "0.1", "1", "10", "100", "1000")
+names(pens) <- c("None", "10e-3", "10e-2", "10e-1", "10", "10e+1", "10e+2", "10e+3")
 
 # Define UI for application that draws a histogram
 ui <- dashboardPage(
@@ -118,23 +129,13 @@ server <- function(input, output, session) {
     })
 
   output$table <- renderDataTable({
-    datatable(tb |> 
+    datatable(tb_download |> 
                 filter(date >= lubridate::ymd("1950-01-01")) |> 
-                group_by(method, penalty_f, window) |> 
+                group_by(method, penalty, window) |> 
                 summarize(m = mean(ts, na.rm = T),
                           s = sd(ts, na.rm = T),
                           sharpe = sqrt(12)*m/s) |> 
                 ungroup(),
-              # |> 
-              #   rbind(
-              #     tb_2 |> 
-              #       filter(date >= lubridate::ymd("1950-01-01")) |> 
-              #       group_by(method, penalty, window) |> 
-              #       summarize(m = mean(ts, na.rm = T),
-              #                 s = sd(ts, na.rm = T),
-              #                 sharpe = sqrt(12)*m/s) |> 
-              #       ungroup()
-              #   ), 
               rownames = F) |> 
       formatRound(c(4:6), c(5, 5, 5))
   })
@@ -143,7 +144,8 @@ server <- function(input, output, session) {
     p <- ggplot(data = df(),
                 aes(x = date, y = ts, col = penalty_f, group = penalty_f))
     p + geom_line() + 
-      facet_grid(penalty_f ~ method) +
+      facet_grid(penalty_f ~ method,
+                 labeller = labeller(penalty_f = pens)) +
       scale_color_brewer("Ridge Penalty", palette = "Dark2") +
       labs(x = "Date",
            y = "Estimated Timing Strategy") +
@@ -156,7 +158,8 @@ server <- function(input, output, session) {
     p <- ggplot(data = df(),
                 aes(x = date, y = y_hat, col = penalty_f, group = penalty_f))
     p + geom_line() + 
-      facet_grid(penalty_f ~ method) +
+      facet_grid(penalty_f ~ method,
+                 labeller = labeller(penalty_f = pens)) +
       scale_color_brewer("Ridge Penalty", palette = "Dark2") +
       labs(x = "Date",
            y = "Estimated Return") +
@@ -175,6 +178,7 @@ server <- function(input, output, session) {
       labs(x = "Ridge Penalty",
            y = "Timing Strategy") +
       scale_y_continuous(limits = c(-0.001, 0.001)) +
+      scale_x_discrete(labels = c("None", 0.001, 0.01, 0.1, 1, 10, 100, 1000)) +
       theme_bw()
   }, height = 600)
   
@@ -183,7 +187,8 @@ server <- function(input, output, session) {
       paste("rff-icv", ".csv", sep="")
     },
     content = function(file) {
-      write.csv(tb, file)
+      
+      write.csv(tb_download, file)
     })
 }
 
