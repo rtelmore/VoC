@@ -13,6 +13,7 @@ library(ggplot2)
 library(dplyr)
 library(DT)
 library(lubridate)
+library(zoo)
 
 tb_1 <- readRDS("rff-data.rds") |> 
   dplyr::mutate(date = lubridate::ymd(date))
@@ -37,7 +38,20 @@ tb_download <- tb |>
 tb$penalty_f = factor(tb$penalty, 
                       levels = c("None", "1e-3", "1e-2", "1e-1", "1",
                                  "1e+1", "1e+2", "1e+3"))
-   
+
+returns <- tb_1 |> 
+  filter(window == 120, 
+         penalty == "10e-3") |> 
+  mutate(y = ts/y_hat) |> 
+  select(date, y) |>
+  mutate(mov_avg = lag(rollapply(y, 120, mean, align = "right", fill = NA)))
+
+tb_w_returns <- tb |> 
+  filter(penalty %in% c("1e-3", "1e-1", "1e+1", "1e+3"),
+         window == 120,
+         date >= ymd("1950-01-01")) |> 
+  left_join(returns)
+
 # Define UI for application that draws a histogram
 ui <- dashboardPage(
   dashboardHeader(title = "VoC"),
@@ -45,6 +59,7 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("Timing Strategy", tabName = "line_plot", icon = icon("image")),
       menuItem("Estimated Return", tabName = "line_plot_return", icon = icon("image")),
+      menuItem("Moving Average Plot", tabName = "ma_plot", icon = icon("image")),
       menuItem("Boxplots", tabName = "box_plot", icon = icon("image")),
       menuItem("Table", tabName = "stats_table", icon = icon("table")),
       menuItem("Data", tabName = "download", icon = icon("download")),
@@ -88,6 +103,12 @@ ui <- dashboardPage(
       tabItem(tabName = "box_plot",
               fluidRow(
                 box(plotOutput("box"), width = '9', height = 650),
+              )
+      ),
+
+      tabItem(tabName = "ma_plot",
+              fluidRow(
+                box(plotOutput("ma_plot_return"), width = '9', height = 650),
               )
       ),
       
@@ -163,6 +184,24 @@ server <- function(input, output, session) {
       scale_x_date(date_breaks = "5 year", date_minor_breaks = "2.5 year") +
       guides(x =  guide_axis(angle = 45)) +
       theme_bw()
+  }, height = 600)
+
+  output$ma_plot_return <- renderPlot({
+    p <- ggplot(data = tb_w_returns,
+                aes(x = date, y = y_hat, color = penalty_f, group = penalty_f))
+    
+    p + geom_line() + 
+      facet_grid(penalty_f ~ method,
+                 labeller = labeller(penalty_f = pens),
+                 scales = "free_y") +
+      geom_line(aes(x = date, y = mov_avg), col = "black") +
+      scale_color_brewer("Ridge Penalty", palette = "Dark2") +
+      labs(x = "Date",
+           y = "Estimated Return") +
+      scale_x_date(date_breaks = "5 year") +#, date_minor_breaks = "2 year") +
+      guides(x =  guide_axis(angle = 45)) +
+      theme_bw() +
+      guides(col = "none")
   }, height = 600)
   
   output$box <- renderPlot({

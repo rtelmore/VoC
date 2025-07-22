@@ -136,7 +136,8 @@ p <- ggplot(data = tb_w_returns,
 
 p + geom_line() + 
   facet_grid(penalty_f ~ method,
-             labeller = labeller(penalty_f = pens)) +
+             labeller = labeller(penalty_f = pens),
+             scales = "free_y") +
   geom_line(aes(x = date, y = mov_avg), col = "black") +
   scale_color_brewer("Ridge Penalty", palette = "Dark2") +
   labs(x = "Date",
@@ -146,4 +147,4 @@ p + geom_line() +
   theme_bw() +
   guides(col = "none")
 
-ggsave("fig/return-ma-lineplot-120-revision.png", height = 6.5, width = 8)
+ggsave("fig/return-ma-freey-lineplot-120-revision.png", height = 6.5, width = 8)
