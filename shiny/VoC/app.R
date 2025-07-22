@@ -21,24 +21,23 @@ tb_2 <- readRDS("linear-data.rds") |>
   dplyr::mutate(date = lubridate::ymd(date))
 
 tb <- rbind(tb_1, tb_2) |> 
-  mutate(method = ifelse(method == "RFF", "Ridge/RFF", "Ridge/GW"))
+  mutate(method = ifelse(method == "RFF", "Ridge/RFF", "Ridge/GW")) |> 
+  mutate(penalty = gsub("10", "1", penalty)) 
 
 tb_download <- tb |> 
-  mutate(penalty = gsub("10e-3", "0.001", penalty)) |> 
-  mutate(penalty = gsub("10e-2", "0.01", penalty)) |> 
-  mutate(penalty = gsub("10e-1", "0.1", penalty)) |> 
-  mutate(penalty = gsub("10", "1", penalty)) |> 
-  mutate(penalty = gsub("10e+1", "10", penalty)) |> 
-  mutate(penalty = gsub("10e+2", "100", penalty)) |> 
-  mutate(penalty = gsub("10e+3", "1000", penalty)) 
+  mutate(penalty = gsub("10", "1", penalty)) 
+  # mutate(penalty = gsub("10e-3", "0.001", penalty)) |> 
+  # mutate(penalty = gsub("10e-2", "0.01", penalty)) |> 
+  # mutate(penalty = gsub("10e-1", "0.1", penalty)) |> 
+  # mutate(penalty = gsub("10", "1", penalty)) |> 
+  # mutate(penalty = gsub("10e+1", "10", penalty)) |> 
+  # mutate(penalty = gsub("10e+2", "100", penalty)) |> 
+  # mutate(penalty = gsub("10e+3", "1000", penalty)) 
 
 tb$penalty_f = factor(tb$penalty, 
-                      levels = c("None", "10e-3", "10e-2", "10e-1", "10",
-                                 "10e+1", "10e+2", "10e+3"))
+                      levels = c("None", "1e-3", "1e-2", "1e-1", "1",
+                                 "1e+1", "1e+2", "1e+3"))
    
-pens <- c("None", "0.001", "0.01", "0.1", "1", "10", "100", "1000")
-names(pens) <- c("None", "10e-3", "10e-2", "10e-1", "10", "10e+1", "10e+2", "10e+3")
-
 # Define UI for application that draws a histogram
 ui <- dashboardPage(
   dashboardHeader(title = "VoC"),
@@ -144,8 +143,7 @@ server <- function(input, output, session) {
     p <- ggplot(data = df(),
                 aes(x = date, y = ts, col = penalty_f, group = penalty_f))
     p + geom_line() + 
-      facet_grid(penalty_f ~ method,
-                 labeller = labeller(penalty_f = pens)) +
+      facet_grid(penalty_f ~ method) + 
       scale_color_brewer("Ridge Penalty", palette = "Dark2") +
       labs(x = "Date",
            y = "Estimated Timing Strategy") +
@@ -158,8 +156,7 @@ server <- function(input, output, session) {
     p <- ggplot(data = df(),
                 aes(x = date, y = y_hat, col = penalty_f, group = penalty_f))
     p + geom_line() + 
-      facet_grid(penalty_f ~ method,
-                 labeller = labeller(penalty_f = pens)) +
+      facet_grid(penalty_f ~ method) +
       scale_color_brewer("Ridge Penalty", palette = "Dark2") +
       labs(x = "Date",
            y = "Estimated Return") +

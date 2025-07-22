@@ -6,6 +6,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(lubridate)
+library(zoo)
 
 tb_1 <- readRDS("data/rff-std-1-stdy-0-demean-1-data.rds") |> 
   dplyr::mutate(date = lubridate::ymd(date))
@@ -16,6 +17,8 @@ tb_2 <- readRDS("data/linear-std-1-stdy-0-demean-1-data.rds") |>
 tb <- rbind(tb_1, tb_2) |> 
   mutate(method = ifelse(method == "RFF", "Ridge/RFF", "Ridge/GW"))
 
+## Note: the penalties are actual 1e-3, 1e-2, etc., not 10e-3, 10e-2
+##       but I'm not changing all the code
 tb$penalty_f = factor(tb$penalty, 
                       levels = c("None", "10e-3", "10e-2", "10e-1", "10",
                                  "10e+1", "10e+2", "10e+3"))
@@ -115,3 +118,32 @@ p + geom_line() +
   theme_bw() +
   guides(col = "none")
 ggsave("fig/return-lineplot-120-revision.png", height = 6.5, width = 8)
+
+## 
+returns <- read.csv("data/matlab-sims-rff-12.csv") |> 
+  select(date, Y) |> 
+  mutate(date = ymd(date),
+         mov_avg = lag(rollapply(Y, 120, mean, align = "right", fill = NA)))
+
+tb_w_returns <- tb |> 
+  filter(penalty %in% c("10e-3", "10e-1", "10e+1", "10e+3"),
+         window == 120,
+         date >= ymd("1950-01-01")) |> 
+  left_join(returns)
+  
+p <- ggplot(data = tb_w_returns,
+            aes(x = date, y = y_hat, color = penalty_f, group = penalty_f))
+
+p + geom_line() + 
+  facet_grid(penalty_f ~ method,
+             labeller = labeller(penalty_f = pens)) +
+  geom_line(aes(x = date, y = mov_avg), col = "black") +
+  scale_color_brewer("Ridge Penalty", palette = "Dark2") +
+  labs(x = "Date",
+       y = "Estimated Return") +
+  scale_x_date(date_breaks = "5 year") +#, date_minor_breaks = "2 year") +
+  guides(x =  guide_axis(angle = 45)) +
+  theme_bw() +
+  guides(col = "none")
+
+ggsave("fig/return-ma-lineplot-120-revision.png", height = 6.5, width = 8)
